@@ -28,7 +28,7 @@ async function startRecording() {
     console.error("Error accessing microphone:", error);
     recordingStatus.textContent = "Error accessing microphone. Check console for details.";
   }
-}
+} 
 
 // Stop recording when the page is closed or navigated away
 window.addEventListener("beforeunload", () => {
