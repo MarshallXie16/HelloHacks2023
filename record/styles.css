@@ -1,0 +1,22 @@
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  margin: 20px;
+}
+
+.microphone-icon {
+  font-size: 48px;
+  color: #007bff; /* Change the color as needed */
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+
+p {
+  margin-top: 10px;
+}
+
+audio {
+  margin-top: 20px;
+  width: 100%;
+  max-width: 400px;
+}
