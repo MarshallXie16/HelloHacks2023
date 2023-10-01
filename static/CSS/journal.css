@@ -22,12 +22,16 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-evenly;
+  justify-content: start;
   overflow: hidden;
 }
 
+.spacer {
+  flex-grow: 1;
+}
+
 /* journal title, journal preview*/
-.journal-title, .journal-preview {
+.journal-title, .journal-preview, .journal-date{
   margin: 0;
   width: 13rem;
   overflow-wrap: break-word;
@@ -35,6 +39,11 @@
 }
 .journal-title {
   margin-top: 1rem;
+}
+.journal-date {
+  margin-top: 0.3rem;
+  font-size: 1rem;
+  /* italize text */
 }
 .journal-preview {
   margin-top: 1rem;
@@ -49,12 +58,22 @@
   -webkit-box-orient: vertical;
 }
 
+.journal-mood {
+  margin: 1rem;
+  font-size: 2rem;
+  transition: transform 0.5s;
+}
+.journal-mood:hover {
+  transform: scale(1.05);
+}
+
 
 /* button container */
 .buttons {
   width: 100%;
   display: flex;
   justify-content: space-evenly;
+  margin-bottom: 1rem;
 }
 
 /* general style for buttons */

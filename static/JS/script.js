@@ -7,6 +7,7 @@ let addJournalButton = document.querySelector('.add-journal-entry');
 let formContainer = document.querySelector('.journal-entry-form');
 let moods = document.querySelectorAll(".mood");
 let moodInput = document.getElementById("selectedMood");
+let recordButtonButton = document.querySelector('.record-button');
 
 // toggles the recording button
 async function toggleRecording() {
@@ -25,12 +26,12 @@ async function toggleRecording() {
         };
         // start recording audio
         mediaRecorder.start();
-        document.querySelector('[onclick="toggleRecording()"]').textContent = 'Recording...';
+        recordButtonButton.classList.toggle('play');
         isRecording = true;
     } else {
         // Stop recording audio
         mediaRecorder.stop();
-        document.querySelector('[onclick="toggleRecording()"]').textContent = 'Record';
+        recordButtonButton.classList.toggle('stop');
         isRecording = false;
     }
 }
@@ -40,12 +41,16 @@ async function sendDataToServer(audioBlob) {
     const formData = new FormData();
     formData.append('audio', audioBlob);
 
+    document.getElementById('spinner').style.display = 'block';
+
     // submit data to flask backend via POST
     const response = await fetch('/upload', {
         method: 'POST',
         body: formData
     });
     const data = await response.json();
+
+    document.getElementById('spinner').style.display = 'none';
 
     // reset recorded audio chunks
     audioChunks = [];
@@ -88,3 +93,36 @@ moods.forEach(mood => {
         this.classList.add('selected');
     });
 });
+
+
+// adds event listeners for all delete buttons
+function addDeleteEventListeners() {
+    let deleteButtons = document.querySelectorAll('.delete-button');
+    deleteButtons.forEach((deleteButton) => {
+        deleteButton.addEventListener('click', async () => {
+            console.log(deleteButton);
+            console.log('clicked');
+            let idStr = deleteButton.classList[1];
+            
+            // Send an HTTP DELETE request to Flask
+            try {
+                let routeID = parseInt(idStr.slice(5));  // slice off the "entry-" prefix
+                let response = await fetch(`/delete_entry/${routeID}`, {
+                    method: 'DELETE'
+                });
+
+                // Check if the response is OK
+                if (response.ok) {
+                    let deletedEntry = document.querySelector(`#${idStr}`);
+                    deletedEntry.remove();
+                } else {
+                    console.error('Failed to delete entry');
+                }
+            } catch (error) {
+                console.error('Error occurred:', error);
+            }
+        });
+    });
+}
+
+addDeleteEventListeners();

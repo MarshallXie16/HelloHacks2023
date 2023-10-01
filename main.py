@@ -13,7 +13,7 @@ DATABASE = 'database.db'
 pst = pytz.timezone('America/Los_Angeles')
 
 # keys and credentials
-OPENAI_API_KEY = "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"
+OPENAI_API_KEY = "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"
 os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY
 
 # variables and settings
@@ -21,16 +21,33 @@ summarization_model = 'gpt-3.5-turbo'
 feedback_model = 'gpt-3.5-turbo'
 username = 'Marshall'
 
+# mapping
+emoji_mapping = {
+    "happy": "😊",
+    "sad": "😔",
+    "angry": "😡",
+    "anxious": "😰",
+    "neutral": "😐",
+}
+
 # homepage; display all existing journal entries
 @app.route('/', methods=['GET'])
 def index():
     if request.method == 'GET':
         db = get_db()
+        db.row_factory = dict_factory
         cursor = db.cursor()
-        cursor.execute('SELECT title, entry_date, summary, feedback, mood FROM entries')
-        results = cursor.fetchall()
-        print(results)
-        return render_template('index.html')
+        cursor.execute('SELECT id, title, entry_date, summary, feedback, mood FROM entries')
+        entries = cursor.fetchall()
+    
+        # Augment map emoji to string
+        for entry in entries:
+            mood = entry['mood']
+            print(mood)
+            entry['emoji'] = emoji_mapping.get(mood, "😐")
+            print(entry['emoji'])
+
+        return render_template('index.html', entries=entries)
 
 # processes audio input
 @app.route('/upload', methods=['POST'])
@@ -73,10 +90,25 @@ def submit():
             db.commit()
         except Exception as e:
             print("Error inserting into database", e)
-        return render_template('index.html')
+        return redirect(url_for('index'))
     else:
         return render_template('error.html')
-    
+
+@app.route('/delete_entry/<int:entry_id>', methods=['DELETE'])
+def delete_entry(entry_id):
+    try:
+        delete_entry(entry_id) 
+        return jsonify(success=True), 200
+    except Exception as e:
+        return jsonify(error=str(e)), 500
+
+# delete a database entry, given its id
+def delete_entry(entry_id):
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('DELETE FROM entries WHERE id=?', (entry_id,))
+    db.commit()
+    print(f'entry {entry_id} has been successfully deleted.')
 
 # transcribe the audio at filepath using Whisper API
 def transcribe(filepath):
@@ -88,14 +120,14 @@ def transcribe(filepath):
 
 # organize and summarize the transcript into bullet-point form
 def get_summary(transcript):
-    prompt = f'''The following is a journal entry from {{ user }}. 
-    Organize and summarize the journal entry in bullet point form, from the perspective of {{ user }}, taking note of key events, insights, and feelings.
-    Journal Entry: ---
-    {transcript}.
+    prompt = f'''The following is a transcript of a spoken journal entry from { username }. 
+    Organize and summarize the journal entry in bullet point form, while retaining the same tone and speaking style of the user. 
+    Write from a first-person perspective, taking note of key events, insights, and feelings.
+    The output must be based on the Journal Entry provided; do not make up any information.
+    Journal Entry: {transcript}
+    Output: '''
 
-    Summary: '''
-
-    system_prompt = [{"role": "system", "content": prompt}]
+    system_prompt = [{"role": "user", "content": prompt}]
 
     # make openAI API call
     response = openai.ChatCompletion.create(
@@ -111,12 +143,13 @@ def get_summary(transcript):
 
 # based on the transcript, provide personalized feedback and advice
 def get_feedback(transcript):
-    prompt = f'''You are a professional therapist with over a decade of experience. 
-    You are highly empathetic and converses with your patients in a personal and casual manner. 
-    Your patient, {username}, is talking about their day. Below is a summary of their day, including what happened (events), 
-    what they learned about themselves/life (insights), and their feelings (mood). 
-    Provide feedback to them as a therapist would to his patient. Be empathetic but also offer personalized advice for help {username} overcome his struggles. 
-    The response should be a maximum of 300 words.
+    prompt = f'''Context: You are a professional therapist with over a decade of experience. You are highly empathetic and converse with your patients in a personal and casual manner. 
+    Your patient, {username}, is talking about their day. Below is a summary of their day, including what happened (events), what they learned about themselves/life (insights), and their feelings (mood). 
+    
+    Task: Provide feedback to them as a therapist would to his patient. Be empathetic but also offer personalized advice to help {username} overcome his struggles. 
+    
+    Format: The response should be a maximum of 200 words. Be concise and to the point. Strike a balance between empathy and practical advice. 
+    
     {username}'s summary of their day: {transcript}'''
 
     system_prompt = [{"role": "system", "content": prompt}]
@@ -138,6 +171,12 @@ def get_db():
     if 'db' not in g:
         g.db = sqlite3.connect(DATABASE)
     return g.db
+
+def dict_factory(cursor, row):
+    d = {}
+    for idx, col in enumerate(cursor.description):
+        d[col[0]] = row[idx]
+    return d
 
 # automatically closes db connection after a response is sent to client
 @app.teardown_appcontext
