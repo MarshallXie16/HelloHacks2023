@@ -1,0 +1,125 @@
+/* journal entry card */
+.journal-entry {
+  padding: 1rem;
+  max-height: 25rem;
+  border-radius: 1rem;
+  border: 2px solid var(--container-color);
+  box-shadow: 0px 0px 10px var(--border-color);
+  transition: transform 0.5s, box-shadow 0.5s;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.journal-entry:hover {
+  transform: translateY(-5%);
+  box-shadow: 0px 0px 10px var(--border-color--hover);
+}
+
+/* journal content container */
+.journal-content {
+  height: 100%;
+  width: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+  overflow: hidden;
+}
+
+/* journal title, journal preview*/
+.journal-title, .journal-preview {
+  margin: 0;
+  width: 13rem;
+  overflow-wrap: break-word;
+  text-align: left;
+}
+.journal-title {
+  margin-top: 1rem;
+}
+.journal-preview {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1rem;
+  max-height: calc(1.5rem * 3);
+  max-height: 65%;
+  display: -webkit-box;
+  -webkit-line-clamp: 15;
+  -webkit-box-orient: vertical;
+}
+
+
+/* button container */
+.buttons {
+  width: 100%;
+  display: flex;
+  justify-content: space-evenly;
+}
+
+/* general style for buttons */
+button {
+  width: 30%;
+  height: auto;
+  padding: 0.3rem;
+  color: var(--primary-color);
+  background-color: var(--text-color-dark);
+  border: 2px solid var(--primary-color);
+  border-radius: 0.5rem;
+  transition: color 0.5s, background-color 0.5s;
+  cursor: pointer;
+}
+
+/* edit/submit button hover */
+.edit-button:hover, button[type="submit"]:hover, .record-button:hover {
+  color: var(--text-color-dark);
+  background-color: var(--primary-color);
+}
+
+/* delete-button */
+.delete-button {
+  color: red;
+  border-color: red;
+}
+.delete-button:hover {
+  color: var(--text-color-dark);
+  background-color: red;
+}
+
+/* add journal entry button */
+.add-journal-entry {
+  width: auto;
+  height: auto;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 1rem;
+  border-radius: 1rem;
+  border: 2px solid var(--container-color);
+  box-shadow: 0px 0px 10px var(--border-color);
+  transition: transform 0.5s, box-shadow 0.5s;
+  cursor: pointer;
+}
+
+/* hover animation for add-journal-entry button */
+.add-journal-entry:hover {
+  transform: scale(105%);
+  box-shadow: 0px 0px 10px var(--container-color);
+}
+
+/* styling (+) icon */
+.add-journal-entry i {
+  font-size: 3rem;
+  color: grey;
+  transition: font-size 0.5s, transform 1s;
+}
+
+/* hover animation for (+) icon */
+.add-journal-entry:hover i {
+  font-size: 5rem;
+  transform: rotate(360deg);
+}
+
+
