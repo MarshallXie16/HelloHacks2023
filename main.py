@@ -13,7 +13,7 @@ DATABASE = 'database.db'
 pst = pytz.timezone('America/Los_Angeles')
 
 # keys and credentials
-OPENAI_API_KEY = "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"
+OPENAI_API_KEY = ""
 os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY
 
 # variables and settings
