@@ -46,20 +46,24 @@
         <div class="recorder">
             <button class="record-button" onclick="toggleRecording()">Record</button>
         </div>
-        <form action="/submit">
+        <form action="/submit" method="post">
         <div class="filled-content">
             <h2>Add a new journal entry</h2>
-            <input type="text" name="title" id="title" placeholder="Title" minlength="1" maxlength="50"/>
+            <input type="text" name="title" id="title" placeholder="{% if title %}{{ title }}{% else %}Title{% endif %}" minlength="1" maxlength="50"/>
             <textarea name="summary" id="summary" cols="30" rows="10" required>
                 {% if summary %} {{ summary }} {% endif %}
             </textarea>
             <textarea name="feedback" id="feedback" cols="30" rows="10" required>
                 {% if feedback %} {{ feedback }} {% endif %}
             </textarea>
-            <div class="checkbox-wrapper">
-                <input type="checkbox" name="status" id="status" value="happy" />
-                <label for="status">What's your mood for today?</label>
+            <div class="moods-container">
+                <div class="mood" data-mood="happy" title="Happy">😊</div>
+                <div class="mood" data-mood="sad" title="Sad">😔</div>
+                <div class="mood" data-mood="angry" title="Angry">😡</div>
+                <div class="mood" data-mood="anxious" title="Anxious">😰</div>
+                <div class="mood" data-mood="neutral" title="Neutral">😐</div>
             </div>
+            <input type="hidden" name="selectedMood" id="selectedMood">
             <button type="submit">Submit</button>
         </div>
         <button type="button" class="exit">
