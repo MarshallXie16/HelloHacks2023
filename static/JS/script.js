@@ -5,6 +5,8 @@ let recordButton = document.querySelector('.recorder');
 let filledContent = document.querySelector('.filled-content');
 let addJournalButton = document.querySelector('.add-journal-entry');
 let formContainer = document.querySelector('.journal-entry-form');
+let moods = document.querySelectorAll(".mood");
+let moodInput = document.getElementById("selectedMood");
 
 // toggles the recording button
 async function toggleRecording() {
@@ -63,7 +65,7 @@ async function sendDataToServer(audioBlob) {
 
 // When add-journal-entry is clicked, show journal entry form
 addJournalButton.addEventListener('click', () => {
-    formContainer.style.display = "block";
+    formContainer.style.display = "flex";
     console.log("add-button clicked");
   });
   
@@ -71,4 +73,18 @@ addJournalButton.addEventListener('click', () => {
 let exitButton = document.querySelector('.exit');
 exitButton.addEventListener('click', () => {
   formContainer.style.display = 'none';
+});
+
+
+// selects mood
+moods.forEach(mood => {
+    mood.addEventListener("click", function() {
+        const selectedMood = this.getAttribute('data-mood');
+        moodInput.value = selectedMood;
+        console.log(moodInput.value);
+
+        // Visually shows which mood has been selected
+        moods.forEach(mood => mood.classList.remove('selected'));
+        this.classList.add('selected');
+    });
 });

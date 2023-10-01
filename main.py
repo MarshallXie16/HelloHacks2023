@@ -2,16 +2,18 @@ from flask import Flask, render_template, request, jsonify, redirect, url_for, s
 import openai
 import os
 import sqlite3
+from datetime import datetime
+import pytz
+from flask import g
 
 # initialization
 app = Flask(__name__, static_folder='static')
 app.secret_key = 'hello'
 DATABASE = 'database.db'
-connection = sqlite3.connect('database.db')
-cursor = connection.cursor()
+pst = pytz.timezone('America/Los_Angeles')
 
 # keys and credentials
-OPENAI_API_KEY = ""
+OPENAI_API_KEY = "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"
 os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY
 
 # variables and settings
@@ -19,10 +21,16 @@ summarization_model = 'gpt-3.5-turbo'
 feedback_model = 'gpt-3.5-turbo'
 username = 'Marshall'
 
-# homepage
+# homepage; display all existing journal entries
 @app.route('/', methods=['GET'])
 def index():
-    return render_template('index.html')
+    if request.method == 'GET':
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute('SELECT title, entry_date, summary, feedback, mood FROM entries')
+        results = cursor.fetchall()
+        print(results)
+        return render_template('index.html')
 
 # processes audio input
 @app.route('/upload', methods=['POST'])
@@ -40,27 +48,35 @@ def upload():
 
     summary = get_summary(transcript)
     feedback = get_feedback(transcript)
+    
+    current_time = datetime.now(pst)
+    current_time_string = current_time.strftime('%Y-%m-%d %H:%M:%S %Z%z')
+    print(f'Time saved: {current_time}')
 
-    return jsonify({'summary': summary, 'feedback': feedback})
+    return jsonify({'summary': summary, 'feedback': feedback, 'title': current_time_string})
 
 # submits journal entry
-@app.route('/submit')
+@app.route('/submit', methods=['POST'])
 def submit():
     if request.method == 'POST':
         # retrieve form information
         title = request.form.get('title')
         summary = request.form.get('summary')
         feedback = request.form.get('feedback')
-        print(title, summary, feedback)
-        cursor.execute("INSERT INTO entries (title, summary, feedback) VALUES(?, ?, ?)", (title, summary, feedback))
-        connection.commit()
-        test_database()
-    return render_template('index.html')
-
-def test_database():
-    cursor.execute('SELECT * FROM entries')
-    all_entries = cursor.fetchall()
-    print(all_entries)
+        mood = request.form.get('selectedMood')
+        print(mood)
+        # attempt to add to database
+        try: 
+            db = get_db()
+            cursor = db.cursor()
+            cursor.execute("INSERT INTO entries (title, summary, feedback, mood) VALUES(?, ?, ?, ?)", (title, summary, feedback, mood))
+            db.commit()
+        except Exception as e:
+            print("Error inserting into database", e)
+        return render_template('index.html')
+    else:
+        return render_template('error.html')
+    
 
 # transcribe the audio at filepath using Whisper API
 def transcribe(filepath):
@@ -117,16 +133,20 @@ def get_feedback(transcript):
     print(f'AI Therapist Feedback: {feedback}')
     return feedback
 
+# create a new db connection for every thread
+def get_db():
+    if 'db' not in g:
+        g.db = sqlite3.connect(DATABASE)
+    return g.db
+
+# automatically closes db connection after a response is sent to client
+@app.teardown_appcontext
+def close_db(e=None):
+    db = g.pop('db', None)
+
+    if db is not None:
+        db.close()
+
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
-
-# click record button -> JS starts recording
-# clicks record button again -> JS stops recording and sends recorded data to backend + display loading circle
-# In the backend: parse the recorded data and save as audio file
-    # transcribe audio file with whisper
-    # get summary
-    # get feedback
-    # return render with summary and feedback,
-
-
-# CREATE TABLE entries (id INTEGER PRIMARY KEY, entry_date DATE DEFAULT (CURRENT_DATE), title TEXT NOT NULL, summary TEXT NOT NULL, feedback TEXT NOT NULL, mood TEXT NOT NULL);
