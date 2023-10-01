@@ -1,0 +1,27 @@
+:root {
+    font-size: clamp(12px, 0.8vw, 18px);
+    font-family: sans-serif;
+  
+    --background-color: #f9f9f9;
+    --primary-color: #16793c;
+    --secondary-color: #e0faf7;
+    --accent-color: #1b6312;
+    --text-color: black;
+  
+    --background-color-dark: #090206;
+    --primary-color-dark: #16793c;
+    --secondary-color-dark: #093933;
+    --accent-color-dark: #47da34;
+    --text-color-dark: white;
+  
+    --border-color: #ccc;
+    --border-color--hover: #838383;
+    --container-color: #838383;
+    --form-color: rgb(203, 255, 203);
+  
+    --temp: 2px solid red;
+  }
+  
+  h1 {
+    font-size: 3rem;
+  }
