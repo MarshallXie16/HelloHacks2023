@@ -27,16 +27,21 @@
     
       <!-- journal entry grid -->
       <div class="journal-grid">
-        <div class="journal-entry" id="book1">
-          <div class="journal-content">
-            <h3 class="journal-title">September 30, 2023</h3>
-            <h5 class="journal-preview">Ugh, I just don’t even know where to begin with today. EVERYTHING. Everything is too much. They said uni would be fun. A "journey of self-discovery". Yeah, right. More like a descent into the pit of despair. This stupid professor just gave us another 50-page reading, on top of the three assignments and two group projects. What’s the point? Does he think we have no life? Does he even care that we're drowning? I bet not. Why is it that every time I walk into the cafeteria, I see everyone laughing, talking, having a good time? Am I just destined to be the loner in the corner? I tried reaching out, I really did. But, it’s like I’m invisible or something. Or worse, like I’m a burden. No one cares. </h5>
-            <div class="buttons">
-              <button class="edit-button">Edit</button>
-              <button class="delete-button">Delete</button>
+        {% for entry in entries %}
+        <div class="journal-entry" id="{{ 'entry' + entry['id']|string }}">
+            <div class="journal-content">
+              <h3 class="journal-title item">{{ entry['title'] }}</h3>
+              <p class="journal-date item">{{ entry['entry_date'] }}</p>
+              <div class="journal-mood item">{{ entry['emoji'] }}</div>
+              <h5 class="journal-preview item">{{ entry['summary'] }}</h5>
+              <div class="spacer"></div>
+              <div class="buttons item">
+                <button class="edit-button {{ 'entry' + entry['id']|string }}">Edit</button>
+                <button class="delete-button {{ 'entry' + entry['id']|string }}">Delete</button>
+              </div>
             </div>
           </div>
-        </div>
+        {% endfor %}
         <button class="add-journal-entry">
           <i class="bi bi-plus-lg"></i>
         </button>
@@ -44,12 +49,18 @@
     <!-- pop-up journal entry -->
     <div class="journal-entry-form">
         <div class="recorder">
-            <button class="record-button" onclick="toggleRecording()">Record</button>
+            <button class="record-button" onclick="toggleRecording()">
+              <i class="bi bi-play"></i>
+              <script> scr="script.js"</script>
+          </button>
         </div>
+        <div id="spinner" style="display: none;">
+            <img src="{{ url_for('static', filename='assets/spinner.gif') }}" alt="Loading..." />
+        </div>        
         <form action="/submit" method="post">
         <div class="filled-content">
             <h2>Add a new journal entry</h2>
-            <input type="text" name="title" id="title" placeholder="{% if title %}{{ title }}{% else %}Title{% endif %}" minlength="1" maxlength="50"/>
+            <input type="text" name="title" id="title" placeholder="{{ title or 'Title' }}" minlength="1" maxlength="50"/>
             <textarea name="summary" id="summary" cols="30" rows="10" required>
                 {% if summary %} {{ summary }} {% endif %}
             </textarea>
@@ -63,7 +74,7 @@
                 <div class="mood" data-mood="anxious" title="Anxious">😰</div>
                 <div class="mood" data-mood="neutral" title="Neutral">😐</div>
             </div>
-            <input type="hidden" name="selectedMood" id="selectedMood">
+            <input type="hidden" name="selectedMood" value="Neutral" id="selectedMood">
             <button type="submit">Submit</button>
         </div>
         <button type="button" class="exit">
