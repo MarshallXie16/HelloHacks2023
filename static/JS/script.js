@@ -42,6 +42,7 @@ async function sendDataToServer(audioBlob) {
     formData.append('audio', audioBlob);
 
     document.getElementById('spinner').style.display = 'block';
+    recordButtonButton.style.display = 'none';
 
     // submit data to flask backend via POST
     const response = await fetch('/upload', {
